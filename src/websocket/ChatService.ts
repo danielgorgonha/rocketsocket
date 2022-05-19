@@ -2,6 +2,7 @@ import { container } from "tsyringe";
 import { io } from "../http";
 
 import { CreateUserService } from "../services/CreateUserService";
+import { GetAllUsersService } from "../services/GetAllUsersService";
 
 
 io.on("connect", (socket) => {
@@ -19,4 +20,11 @@ io.on("connect", (socket) => {
 
     socket.broadcast.emit("new_users", user);
   });
+
+  socket.on("get_users", async (callback) => {
+    const getAllUsersService = container.resolve(GetAllUsersService);
+    const users = await getAllUsersService.execute();
+
+    callback(users);
+  })
 });
