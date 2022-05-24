@@ -37,8 +37,19 @@ function onLoad() {
   });
 
   socket.on("message", (data) => {
-    console.log(data);
-    addMessage(data);
+    if (data.message.roomId === idChatRoom) {
+      addMessage(data);
+    }
+  });
+
+  socket.on("notification", (data) => {
+    if (data.roomId !== idChatRoom) {
+      const user = document.getElementById(`user_${data.from._id}`);
+
+      user.insertAdjacentHTML("afterbegin", `
+        <div class="notification"></div>
+      `);
+    }
   });
 }
 
@@ -81,6 +92,13 @@ document.getElementById("users_list").addEventListener("click", (e) => {
   document.getElementById("message_user").innerHTML = "";
   if (e.target && e.target.matches("li.user_name_list")) {
     const idUser = e.target.getAttribute("idUser");
+
+    const notification = document.querySelector(
+      `#user_${idUser} .notification`
+    );
+    if (notification) {
+      notification.remove();
+    }
 
     socket.emit("start_chat", { idUser }, (response) => {
       idChatRoom = response.room.idChatRoom;
