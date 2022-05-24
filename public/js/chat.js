@@ -62,7 +62,7 @@ function addMessage(data) {
         class="img_user"
         src=${data.user.avatar}
       />
-      <strong> ${data.user.name} &nbsp;</strong>
+      <strong> ${data.user.name} &nbsp; </strong>
       <span> ${dayjs(data.message.created_at).format("DD/MM/YYYY HH:mm")}</span>
     </span>
     <div class="messages">
