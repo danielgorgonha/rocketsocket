@@ -37,8 +37,27 @@ function onLoad() {
   });
 
   socket.on("message", (data) => {
-    console.log("message", data);
+    console.log(data);
+    addMessage(data);
   });
+}
+
+function addMessage(data) {
+  const divMessageUser = document.getElementById("message_user");
+
+  divMessageUser.innerHTML += `
+    <span class="user_name user_name_date">
+      <img
+        class="img_user"
+        src=${data.user.avatar}
+      />
+      <strong> ${data.user.name}</strong>
+      <span> ${dayjs(data.message.created_at).format("DD/MM/YYYY HH:mm")}</span>
+    </span>
+    <div class="messages">
+      <span class="chat_message"> ${data.message.text}</span>
+    </div>
+  `;
 }
 
 function addUser(user) {
@@ -62,8 +81,17 @@ document.getElementById("users_list").addEventListener("click", (e) => {
   if (e.target && e.target.matches("li.user_name_list")) {
     const idUser = e.target.getAttribute("idUser");
 
-    socket.emit("start_chat", { idUser }, (data) => {
-      idChatRoom = data.room.idChatRoom;
+    socket.emit("start_chat", { idUser }, (response) => {
+      idChatRoom = response.room.idChatRoom;
+
+      response.messages.forEach(message => {
+        const data = {
+          message,
+          user: message.to
+        };
+
+        addMessage(data);
+      })
     });
   }
 });
@@ -77,7 +105,7 @@ document.getElementById("user_message").addEventListener("keypress", (e) => {
     const data = {
       message,
       idChatRoom
-    }
+    };
 
     socket.emit("message", data);
   }
